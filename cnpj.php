@@ -8,34 +8,66 @@
 <?php 
 //FEITO COM AMOR PELO DANILO DOMINONI
 
-	consultaCNPJ("19861350000413");
-	function consultaCNPJ($cod){
-		$cnpj = $cod;
-		$link = "https://www.receitaws.com.br/v1/cnpj/$cnpj";
+	$dados = array();
+	$nomeArquivo = "empresas.txt";
 
-		$ch = curl_init($link);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	if (file_exists($nomeArquivo)) {
 
-		$response = curl_exec($ch);
+		$arquivo = fopen($nomeArquivo, "r");
 
-		curl_close($ch);
+		while ($cnpj = fgets($arquivo)) {
 
-		$data = json_decode($response, true);
+			array_push($dados, $cnpj);
 
-		$headers = array();
+		}	
 
+		fclose($arquivo);
+
+	}
+
+	//foreach ($dados as $value) {
+
+		consultaCNPJ("19861350000170");
+
+	//}
+
+//FUNÇÃO DE CONSULTA CNPJ
+function consultaCNPJ($cod){
+	//CRIANDO O LINK PARA CONSULTA A PARTIR DO CNPJ 
+	$link = "https://www.receitaws.com.br/v1/cnpj/$cod";
+
+	//CONSULTA COM O WEB SERVICE
+	$ch = curl_init($link);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+	//JSON RETORNADO
+	$response = curl_exec($ch);
+
+	//FECHANDO CONSULTA
+	curl_close($ch);
+
+	//TRANSFORMANDO O JSON RETORNADO EM ARRAY
+	$data = json_decode($response, true);
+
+	//ARRAY PARA CRIAR O HEADER
+	$headers = array();
+
+	//VERIFICA SE O ARQUIVO CONSEGUIU SER CRIADO
+	if($file = fopen("empresas.csv", "w+")){
+
+		//CRIAÇÃO DO HEADER
 		foreach ($data as $key => $value) {
 			array_push($headers, ucfirst($key));
-		}
-
-		$file = fopen("empresas.csv", "w+");
+		}		
 
 		fwrite($file, implode(",", $headers) . "\r\n");
 
+		//ARRAY PARA CRIAR AS COLUNAS
 		$dataRow = array();
 
-		foreach ($data as $key => $value) {
+		//CRIAÇÃO DAS COLUNAS
+		foreach ($data as $value) {
 
 			if (!is_array($value)){
 
@@ -48,12 +80,18 @@
 
 		}
 
-		fwrite($file, implode(",", $dataRow) . "\r\n");
-
+		//ADICIONANDO E FECHADO O ARQUIVO
+		echo (!fwrite($file, implode(",", $dataRow) . "\r\n"));
 		fclose($file);
 
 		echo "Arquivo criado com sucesso!";
 
+	} else {
+
+		echo "Problema na criação do arquivo, verifique se o arquivo se encontra fechado";
+
 	}
+
+}
 
  ?>
