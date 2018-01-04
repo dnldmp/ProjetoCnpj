@@ -6,33 +6,44 @@
 </form>
 
 <?php 
+ini_set('max_execution_time', 3000000);
 //FEITO COM AMOR PELO DANILO DOMINONI
 
-	$dados = array();
-	$nomeArquivo = "empresas.txt";
+//CRIANDO ARRAY PARA SALVAR OS CNPJ
+$dados = array();
 
-	if (file_exists($nomeArquivo)) {
+//NOME DO ARQUIVO DE BUSCA
+$nomeArquivo = "empresas.txt";
 
-		$arquivo = fopen($nomeArquivo, "r");
+//VERIFICAR SE O ARQUIVO NÃO ESTÁ VAZIO
+if (file_exists($nomeArquivo)) { //begin if
 
-		while ($cnpj = fgets($arquivo)) {
+	//ABRINDO ARQUIVO
+	$arquivo = fopen($nomeArquivo, "r");
 
-			array_push($dados, $cnpj);
+	while ($cnpj = fgets($arquivo)) { //begin while
 
-		}	
+		//SALVANDO CNPJ
+		array_push($dados, $cnpj);
 
-		fclose($arquivo);
+	}//end while
 
-	}
+	//FECHANDO ARQUIVO
+	fclose($arquivo);
 
-	//foreach ($dados as $value) {
+}//end if
 
-		consultaCNPJ("19861350000170");
+foreach ($dados as $key => $value) {//begin foreach
 
-	//}
+	//CHAMANDO A FUNÇÃO DE CONSULTA
+	$cnpj = $dados[$key];
+	consultaCNPJ(trim($cnpj));
+
+}//end for each
 
 //FUNÇÃO DE CONSULTA CNPJ
-function consultaCNPJ($cod){
+function consultaCNPJ($cod){//begin function
+
 	//CRIANDO O LINK PARA CONSULTA A PARTIR DO CNPJ 
 	$link = "https://www.receitaws.com.br/v1/cnpj/$cod";
 
@@ -54,12 +65,12 @@ function consultaCNPJ($cod){
 	$headers = array();
 
 	//VERIFICA SE O ARQUIVO CONSEGUIU SER CRIADO
-	if($file = fopen("empresas.csv", "w+")){
+	if($file = fopen("empresas.csv", "a+")){ //begin first if
 
 		//CRIAÇÃO DO HEADER
-		foreach ($data as $key => $value) {
+		foreach ($data as $key => $value) { //begin header foreach
 			array_push($headers, ucfirst($key));
-		}		
+		}//end header foreach		
 
 		fwrite($file, implode(",", $headers) . "\r\n");
 
@@ -67,31 +78,32 @@ function consultaCNPJ($cod){
 		$dataRow = array();
 
 		//CRIAÇÃO DAS COLUNAS
-		foreach ($data as $value) {
+		foreach ($data as $value) {//begin row foreach
 
-			if (!is_array($value)){
+			if (!is_array($value)){//begin if
 
 				array_push($dataRow, $value);
 
-			} else {
+			} else {//end if and begin else
 
 				array_push($dataRow, "Vazio");
-			}
 
-		}
+			}//end else
+
+		}//end row foreach
 
 		//ADICIONANDO E FECHADO O ARQUIVO
-		echo (!fwrite($file, implode(",", $dataRow) . "\r\n"));
+		fwrite($file, implode(",", $dataRow) . "\r\n");
 		fclose($file);
 
 		echo "Arquivo criado com sucesso!";
 
-	} else {
+	} else { //end first if and begin else
 
 		echo "Problema na criação do arquivo, verifique se o arquivo se encontra fechado";
 
-	}
+	}//end else
 
-}
+}//end function
 
  ?>
