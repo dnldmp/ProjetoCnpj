@@ -1,3 +1,4 @@
+<meta charset="utf-8" />
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 <form class="form-group" method="POST" enctype="multipart/form-data">
 	<label for="nome">Arquivo:</label>
@@ -6,14 +7,16 @@
 </form>
 
 <?php 
+//Feito com amor pelo Danilo Dominoni
+
+//CONFIGURAÇÕES INICIAIS
 ini_set('max_execution_time', 3000000);
-//FEITO COM AMOR PELO DANILO DOMINONI
 
 //CRIANDO ARRAY PARA SALVAR OS CNPJ
 $dados = array();
 
 //NOME DO ARQUIVO DE BUSCA
-$nomeArquivo = "empresas.txt";
+$nomeArquivo = "cnpj.txt";
 
 //VERIFICAR SE O ARQUIVO NÃO ESTÁ VAZIO
 if (file_exists($nomeArquivo)) { //begin if
@@ -39,7 +42,7 @@ foreach ($dados as $key => $value) {//begin foreach
 	$cnpj = $dados[$key];
 	consultaCNPJ(trim($cnpj));
 
-}//end for each
+}//end foreach
 
 //FUNÇÃO DE CONSULTA CNPJ
 function consultaCNPJ($cod){//begin function
@@ -65,7 +68,7 @@ function consultaCNPJ($cod){//begin function
 	$headers = array();
 
 	//VERIFICA SE O ARQUIVO CONSEGUIU SER CRIADO
-	if($file = fopen("empresas.csv", "a+")){ //begin first if
+	if($file = fopen("empresas.txt", "a+")){ //begin first if
 
 		//CRIAÇÃO DO HEADER
 		foreach ($data as $key => $value) { //begin header foreach
@@ -74,11 +77,11 @@ function consultaCNPJ($cod){//begin function
 
 		fwrite($file, implode(",", $headers) . "\r\n");
 
-		//ARRAY PARA CRIAR AS COLUNAS
+		//ARRAY PARA CRIAR AS LINHAS
 		$dataRow = array();
 
 		//CRIAÇÃO DAS COLUNAS
-		foreach ($data as $value) {//begin row foreach
+		foreach ($data as $key => $value) {//begin row foreach
 
 			if (!is_array($value)){//begin if
 
@@ -86,7 +89,25 @@ function consultaCNPJ($cod){//begin function
 
 			} else {//end if and begin else
 
-				array_push($dataRow, "Vazio");
+				//ARMAZENA VALOR DO FOREACH PARA SABER O NOME DO ARRAY
+				$nomeArray = $value;
+
+				//CRAÇÃO DE UMA VARIÁVEL PARA ADICIONAR AO ARRAY DE LINHA
+				$resultArray = "";
+
+				foreach ($nomeArray as $chave => $rowArray) {//begin conteudo foreach
+
+					foreach ($rowArray as $chave => $valorCampo) {//begin get foreach
+
+						//CRIANDO A STRING PARA JOGAR NO ARRAY DE LINHA
+						$resultArray .= str_replace(",", "", $valorCampo) . " - ";
+							
+					}//end get foreach
+
+				}//end conteudo foreach
+
+				//ADICIONANDO O CONTEUDO NO ARRAY DE LINHA
+				array_push($dataRow, $resultArray);
 
 			}//end else
 
