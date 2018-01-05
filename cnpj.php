@@ -10,13 +10,14 @@
 //Feito com amor pelo Danilo Dominoni
 
 //CONFIGURAÇÕES INICIAIS
-ini_set('max_execution_time', 3000000);
+ini_set('max_execution_time', 30000000);
+$index = 0;
 
 //CRIANDO ARRAY PARA SALVAR OS CNPJ
 $dados = array();
 
 //NOME DO ARQUIVO DE BUSCA
-$nomeArquivo = "cnpj.txt";
+$nomeArquivo = "arquivos.txt";
 
 //VERIFICAR SE O ARQUIVO NÃO ESTÁ VAZIO
 if (file_exists($nomeArquivo)) { //begin if
@@ -40,12 +41,12 @@ foreach ($dados as $key => $value) {//begin foreach
 
 	//CHAMANDO A FUNÇÃO DE CONSULTA
 	$cnpj = $dados[$key];
-	consultaCNPJ(trim($cnpj));
-
+	consultaCNPJ(trim($cnpj), $index);
+	$index ++;
 }//end foreach
 
 //FUNÇÃO DE CONSULTA CNPJ
-function consultaCNPJ($cod){//begin function
+function consultaCNPJ($cod, $index){//begin function
 
 	//CRIANDO O LINK PARA CONSULTA A PARTIR DO CNPJ 
 	$link = "https://www.receitaws.com.br/v1/cnpj/$cod";
@@ -68,14 +69,18 @@ function consultaCNPJ($cod){//begin function
 	$headers = array();
 
 	//VERIFICA SE O ARQUIVO CONSEGUIU SER CRIADO
-	if($file = fopen("empresas.txt", "a+")){ //begin first if
+	if($file = fopen("empresas.csv", "a+")){ //begin first if
 
-		//CRIAÇÃO DO HEADER
-		foreach ($data as $key => $value) { //begin header foreach
-			array_push($headers, ucfirst($key));
-		}//end header foreach		
+		if ($index === 0){//begin if index
 
-		fwrite($file, implode(",", $headers) . "\r\n");
+			//CRIAÇÃO DO HEADER
+			foreach ($data as $key => $value) { //begin header foreach
+				array_push($headers, ucfirst($key));
+			}//end header foreach	
+
+			fwrite($file, implode(",", $headers) . "\r\n");
+
+		}//end if index	
 
 		//ARRAY PARA CRIAR AS LINHAS
 		$dataRow = array();
